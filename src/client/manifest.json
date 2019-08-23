@@ -1,0 +1,52 @@
+{
+  "manifest_version": 2,
+  "name": "ext gunjs",
+  "version": "0.1",
+  "description": "Build an Extension!",
+  "permissions": [
+    "activeTab",
+    "tabs",
+    "declarativeContent",
+    "storage"
+  ],
+  "options_page": "options.html",
+  "background": {
+    "scripts": [
+      "gun.js",
+      "sea.js",
+      "radix.js",
+      "radisk.js",
+      "store.js",
+      "rindexed.js",
+      "jquery.js",
+      "background.js"
+    ],
+    "persistent": true
+  },
+  "browser_action": {
+    "default_popup": "popup.html",
+    "default_icon": {
+      "16": "images/get_started16.png",
+      "32": "images/get_started32.png",
+      "48": "images/get_started48.png",
+      "128": "images/get_started128.png"
+    }
+  },
+  "icons": {
+    "16": "images/get_started16.png",
+    "32": "images/get_started32.png",
+    "48": "images/get_started48.png",
+    "128": "images/get_started128.png"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "<all_urls>",
+        "*://*/*"
+      ],
+      "run_at": "document_start",
+      "js": ["jquery.js","contentScript.js"]
+    }
+  ]
+  
+}

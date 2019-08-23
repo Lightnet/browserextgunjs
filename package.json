@@ -1,0 +1,36 @@
+{
+  "name": "browserextgunjs",
+  "version": "1.0.0",
+  "description": "",
+  "main": "app.js",
+  "scripts": {
+    "build": "rollup -c",
+    "autobuild": "rollup -c -w",
+    "dev": "run-p start:dev autobuild",
+    "start": "gulp buildscript && node backend.js",
+    "startsirv": "sirv public",
+    "start:dev": "sirv public --dev"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "compression": "^1.7.4",
+    "del": "^5.0.0",
+    "esm": "^3.2.25",
+    "gulp": "^4.0.2",
+    "gulp-better-rollup": "^4.0.1",
+    "gulp-nodemon": "^2.4.2",
+    "gulp-rename": "^1.4.0",
+    "gun": "^0.2019.726",
+    "polka": "^0.5.2",
+    "rollup": "^1.20.1",
+    "rollup-plugin-commonjs": "^10.0.2",
+    "rollup-plugin-node-resolve": "^5.2.0",
+    "rollup-plugin-svelte": "^5.1.0",
+    "rollup-plugin-terser": "^5.1.1",
+    "sirv": "^0.4.2",
+    "sirv-cli": "^0.4.4",
+    "svelte": "^3.9.1",
+    "uuid": "^3.3.3"
+  }
+}
