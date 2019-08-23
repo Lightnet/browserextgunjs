@@ -11,7 +11,7 @@ var opt, user, gun;
 gun = Gun({localStorage:false});
 let btndebug = document.getElementById('btndebug');
 let btnplay = document.getElementById('btnplay');
-let btntest = document.getElementById('btntest');
+//let btntest = document.getElementById('btntest');
 /*
 let changeColor = document.getElementById('changeColor');
 
@@ -40,20 +40,13 @@ btneditor.onclick = function(element) {
   chrome.tabs.create({url: chrome.extension.getURL('editor.html')});
 };
 
-btntest.onclick = function(element) {
-  //console.log("btntest!");
-  //bkg.console.log('btntest');
-
-  chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
-    bkg.console.log("current tab");
-    var activeTab = tabs[0];
-    chrome.tabs.sendMessage(activeTab.id, {"message": "clicked_browser_action"});
-  });
-
-  chrome.runtime.sendMessage({greeting: "hello"}, function(response) {
-    console.log(response);
-  });
-
-  //chrome.browserAction.setPopup({popup: 'editor.html'});
-  //chrome.tabs.create({url: chrome.extension.getURL('editor.html')});
-};
+//btntest.onclick = function(element) {
+//  chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
+    //bkg.console.log("current tab");
+    //var activeTab = tabs[0];
+    //chrome.tabs.sendMessage(activeTab.id, {"message": "clicked_browser_action"});
+  //});
+  //chrome.runtime.sendMessage({greeting: "hello"}, function(response) {
+//    console.log(response);
+//  });
+//};

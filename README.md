@@ -6,11 +6,6 @@
  To develop and test gunjs and seajs scripts.
 
 
-
-
-
-
-
 Links:    
  * https://stackoverflow.com/questions/21912056/access-local-files-using-a-google-chrome-extension
  * https://developer.chrome.com/apps/app_storage#filesystem-manifest
@@ -21,7 +16,7 @@ Links:
  * 
  * https://github.com/irislib/iris-lib/blob/master/src/chat.js
  * 
+ * https://pouchdb.com/
  * 
- * 
- * 
- * 
+ * https://braid.news/
+ * https://stackoverflow.com/questions/12265403/passing-message-from-background-js-to-popup-js

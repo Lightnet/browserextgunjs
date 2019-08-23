@@ -7,6 +7,7 @@
       <script src="/radisk.js"></script>
       <script src="/store.js"></script>
       <script src="/rindexed.js"></script>
+      <script src="/jquery.js"></script>
     <style>
       button{
         width:100%;
@@ -14,14 +15,17 @@
     </style>
   </head>
   <body style="width:200px;">
-    <a href="#">Test</a>
-    User Name: <input id="iusername" />
-    <br>Passphrase: <input id="ipassphrase" />
+    <!--<a href="#">Test</a>-->
+    User Name: <input id="ialias" value="test" placeholder="alias"/>
+    <br>Passphrase: <input id="ipassphrase"  value="test" placeholder="passphrase"/>
+    <br>Auto Login: <input type="checkbox" id="bautologin"/>
     <br><button id="btnlogin">Login</button>
     <button id="btnforgot">Forgot</button>
     <button id="btnregister">Register</button>
+    <!--
     <button id="btntest">Test</button>
     <br><button id="runContentScript">runContentScript</button>
+    -->
     <script src="login.js"></script>
   </body>
 </html>
