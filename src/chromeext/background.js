@@ -136,6 +136,7 @@ chrome.runtime.onMessage.addListener(
     //console.log(request);
     if(request.action!=null){
       if(request.action == "login"){
+        user = gun.user();
         //console.log(request);
         //console.log(gun);
         //console.log(request.autologin);
@@ -148,7 +149,7 @@ chrome.runtime.onMessage.addListener(
         authlogin(request.alias,request.passphrase,function(ack){
           if(ack == "pass"){
             console.log("pass");
-            sendResponse("pass");
+            //sendResponse("pass");
             chrome.storage.sync.set({autologin:request.autologin}, function() {
               console.log('auto login',request.autologin );
             });
@@ -156,7 +157,8 @@ chrome.runtime.onMessage.addListener(
             return;
           }else{
             console.log("fail");
-            sendResponse("fail");
+            //sendResponse("fail");
+            chrome.runtime.sendMessage({msg:"loginaction",login:ack});
             return;
           }
         });
@@ -207,6 +209,81 @@ chrome.runtime.onMessage.addListener(
         };
         chrome.notifications.create('notifforgot',notifoptions);
       }
+    }
+    if(request.action == "applypassphrasehint"){
+      user = gun.user();
+      if(!user.is){
+        return;
+      }
+
+      let q1 = request.question1; //get input id question 1
+      let q2 = request.question2; //get input id question 2
+      let hint = request.hint; //get input id hint
+      let sec = await Gun.SEA.secret(user.is.epub, user._.sea);//mix key to decrypt
+      let enc_q1 = await Gun.SEA.encrypt(q1, sec);//encrypt q1
+      user.get('forgot').get('q1').put(enc_q1);//set hash q1 to user data store
+      let enc_q2 = await Gun.SEA.encrypt(q2, sec);//encrypt q1
+      user.get('forgot').get('q2').put(enc_q2); //set hash q2 to user data store
+      sec = await Gun.SEA.work(q1,q2);//encrypt key
+      let enc = await Gun.SEA.encrypt(hint, sec);//encrypt hint
+
+      user.get('hint').put(enc,ack=>{//set hash hint
+        //console.log(ack);
+        let status ="";
+        if(ack.err){
+          //console.log("Error!");
+          //modalmessage(ack.err);
+          status="Error";
+        }
+        if(ack.ok){
+          //console.log('Hint Apply!');
+          //modalmessage('Hint Apply!');
+          status="Hint Apply!";
+        }
+        let notifoptions={
+          type:'basic',
+          iconUrl:'images/get_started48.png',
+          title:'Passphase hint message',
+          message:status
+        };
+        chrome.notifications.create('notifpassphrasehint',notifoptions);
+      });
+      //console.log("apply passphrase hint");
+    }
+
+    if(request.action == "changepassphrase"){
+      user = gun.user();
+      if(!user.is){
+        return;
+      }
+      user.auth(user.is.alias, request.oldpassphras, (ack) => {//user auth call
+        //console.log(ack);
+        let status = ack.err || "Saved!";//check if there error else saved message.
+        console.log(status);
+        let notifoptions={
+          type:'basic',
+          iconUrl:'images/get_started48.png',
+          title:'Change passphase message',
+          message:status
+        };
+        chrome.notifications.create('notifchangepassphrase',notifoptions);
+      }, {change:request.newpassphrase});//set config to change password
+      //console.log("change passphrase");
+    }
+
+    if(request.action == "getpublickey"){
+      if(!user.is){
+        return;
+      }
+      console.log(user);
+      chrome.runtime.sendMessage({action:"setpublickey",publickey:user.is.pub});
+    }
+    if(request.action == "getalias"){
+      if(!user.is){
+        return;
+      }
+      console.log(user);
+      chrome.runtime.sendMessage({action:"setalias",alias:user.is.alias});
     }
     //if (message == "runContentScript"){
       //chrome.tabs.executeScript({
