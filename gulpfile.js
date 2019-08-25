@@ -118,13 +118,16 @@ function refreshbrowser(cb){
 exports.refreshbrowser = refreshbrowser;
 function watch(done) {
     gulp.watch(['./app.js','./src/server/**/*.*'], gulp.series(backend_build));
-    //gulp.watch(['./src/client/**/*.*'], gulp.series( cleanbundle, frontrollup_build, lib_test, refreshbrowser));
+    gulp.watch(['./src/chromeext/**/*.*'], gulp.series(
+        chromecopy_html, 
+        chromecopy_js,
+        chromecopy_manifest
+    ));
     gulp.watch(['./src/client/**/*.*'], gulp.series(
         cleanbundle, 
         frontrollup_build, 
         copy_html, 
-        copy_js,
-        copy_manifest
+        copy_js
     ));
     gulp.watch(['./src/common/**/*.*'], gulp.series( lib_test));
     return done();
@@ -145,23 +148,34 @@ function copy_html(){
         .pipe(gulp.dest('public/'));
 }
 exports.copy_html = copy_html;
+
+function chromecopy_html(){
+    return gulp.src('src/chromeext/*.html')
+        .pipe(gulp.dest('public/'));
+}
+exports.chromecopy_html = chromecopy_html;
 var jsfiles=[
     'src/client/*.js',
-    '!src/client/main.js',
-    //'src/client/background.js',
-    //'src/client/popup.js',
-    //'src/client/editor.js',
+    '!src/client/main.js'
 ];
 function copy_js(){
     return gulp.src(jsfiles)
         .pipe(gulp.dest('public/'));
 }
 exports.copy_js = copy_js;
-function copy_manifest(){
-    return gulp.src('src/client/manifest.json')
+var chromejsfiles=[
+    'src/chromeext/*.js'
+];
+function chromecopy_js(){
+    return gulp.src(chromejsfiles)
         .pipe(gulp.dest('public/'));
 }
-exports.copy_manifest = copy_manifest;
+exports.chromecopy_js = chromecopy_js;
+function chromecopy_manifest(){
+    return gulp.src('src/chromeext/manifest.json')
+        .pipe(gulp.dest('public/'));
+}
+exports.chromecopy_manifest = chromecopy_manifest;
 function copy_css(){
     return gulp.src('src/client/global.css')
         .pipe(gulp.dest('public/'));
@@ -192,9 +206,11 @@ const build = gulp.series(
     copy_css, copy_html, 
     copy_svg, 
     watch,
-    copy_manifest,
     copy_gunlib,
     copy_js,
+    chromecopy_html,
+    chromecopy_js,
+    chromecopy_manifest,
     //browser_sync,
     lib_test,
     serve,
@@ -210,7 +226,9 @@ const buildscript = gulp.series(
     copy_html, 
     lib_test, 
     copy_js,
-    copy_manifest,
+    chromecopy_html,
+    chromecopy_js,
+    chromecopy_manifest,
     copy_gunlib
 );
 exports.buildscript = buildscript;

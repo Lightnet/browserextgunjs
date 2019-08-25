@@ -6,19 +6,15 @@ chrome.runtime.onInstalled.addListener(function() {
   //chrome.storage.sync.set({color: '#3aa757'}, function() {
     //console.log('The color is green.');
   //});
-
   chrome.storage.sync.set({username:"guest"}, function() {
     console.log('set username guest');
   });
-
   chrome.storage.sync.set({passphrase:"guest"}, function() {
     console.log('set passphrase guest');
   });
-
   chrome.storage.sync.set({autologin:false}, function() {
     console.log('auto login off');
   });
-
   chrome.declarativeContent.onPageChanged.removeRules(undefined, function() {
     chrome.declarativeContent.onPageChanged.addRules([{
       conditions: [new chrome.declarativeContent.PageStateMatcher({
@@ -27,10 +23,7 @@ chrome.runtime.onInstalled.addListener(function() {
       actions: [new chrome.declarativeContent.ShowPageAction()]
     }]);
   });
-  
 });
-
-
 //https://medium.com/ringcentral-developers/build-a-chrome-extension-with-ringcentral-embeddable-bb6faee808a3
 /*
 chrome.browserAction.onClicked.addListener(function (tab) {
@@ -38,7 +31,6 @@ chrome.browserAction.onClicked.addListener(function (tab) {
   alert('HELLOOOOO WORLD!!');
 });
 */
-
 // Called when the user clicks on the browser action.
 chrome.browserAction.onClicked.addListener(function(tab) {
   console.log("tab");
@@ -51,13 +43,9 @@ chrome.browserAction.onClicked.addListener(function(tab) {
     chrome.tabs.sendMessage(activeTab.id, {"message": "clicked_browser_action"});
   });
 });
-
 //chrome.tabs.query({currentWindow: true, active: true}, function(tabs){
   //var url = domains.contains(tabs.url) ? "tracking.html" : "nottracking.html";
   //var url = tabs.url;
-  //bkg.console.log('login...');
-  //bkg.console.log(url);
-  //bkg.console.log(tabs);
   //chrome.browserAction.setPopup({
      //popup: url,
      //tabId: tabs[0].id
@@ -82,7 +70,7 @@ chrome.storage.sync.get(['autologin','username','passphrase'], function(result) 
     authlogin(result.username,result.passphrase,function(ack){
       console.log("alias login ",ack)
     })
-    chrome.browserAction.setPopup({popup: 'popup.html'});
+    chrome.browserAction.setPopup({popup: 'index.html'});
   }else{
     chrome.browserAction.setPopup({popup: 'login.html'});
   }
@@ -93,14 +81,53 @@ function authlogin(alias,pass,cb){
   user.auth(alias,pass, function(ack){
     //console.log(ack);
     //sendResponse(ack);
+    let status = "";
     if(ack.err){
       cb("fail");
-      return;
+      status = ack.err;
     }else{
       cb("pass");
+      status = "login...";
+    }
+    let notifoptions={
+      type:'basic',
+      iconUrl:'images/get_started48.png',
+      title:'Login Message',
+      message:status
+    };
+    chrome.notifications.create('notiflogin',notifoptions);
+    return;
+  });
+}
+
+async function userforgotpassphrase(ialias,question1,question2,cb){
+  let alias = await gun.get('~@'+ialias).then(); 
+    let publickey;
+    if(!alias){
+        console.log("NOT FOUND ALIAS!");
+        return;
+    }
+    for(var obj in alias){
+        console.log(obj);
+        publickey = obj;
+    }
+    publickey = publickey.substring(1,publickey.length);
+    let to = gun.user(publickey);
+    let who = await to.get('alias').then();
+    if(!who){
+      console.log("NOT ALIAS!");
       return;
     }
-  });
+    let hint = await to.get('hint').then();
+    let dec = await Gun.SEA.work(question1,question2);//get q1 and q2 string to key hash
+    hint = await Gun.SEA.decrypt(hint,dec);//get hint and key decrypt
+    if(hint !=null){//check if hint is string or null
+      cb(hint);
+      return;
+    }else{
+      cb({err:"Fail Decrypt!"});
+      return;
+    }
 }
 
 chrome.runtime.onMessage.addListener(
@@ -118,7 +145,6 @@ chrome.runtime.onMessage.addListener(
         chrome.storage.sync.set({passphrase:request.passphrase}, function() {
           console.log('username',request.passphrase );
         });
-        //;(async function(){ // login!
         authlogin(request.alias,request.passphrase,function(ack){
           if(ack == "pass"){
             console.log("pass");
@@ -127,14 +153,6 @@ chrome.runtime.onMessage.addListener(
               console.log('auto login',request.autologin );
             });
             chrome.runtime.sendMessage({msg:"loginaction",login:ack});
-
-            //chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
-              //bkg.console.log("tab");
-              //var activeTab = tabs[0];
-              //bkg.console.log(activeTab);
-              //chrome.tabs.sendMessage(tabs[0].id, {login:ack});
-            //});
-
             return;
           }else{
             console.log("fail");
@@ -142,23 +160,52 @@ chrome.runtime.onMessage.addListener(
             return;
           }
         });
-        //}());
-        //sendResponse("pass");
-        //return;
+        return;
       }
       if(request.action == "register"){
         let user = gun.user();
         console.log(request.alias);
         console.log(request.passphrase);
         user.create(request.alias, request.passphrase, function(ack){
-          sendResponse(ack);
+          //sendResponse(ack);
+          console.log(ack);
+          let status="";
           if(ack.err){
+            status=ack.err;
           }
           if(ack.pub){
-            //sendResponse(ack);
+            status="Created!";
           }
+          let notifoptions={
+            type:'basic',
+            iconUrl:'images/get_started48.png',
+            title:'Login Message',
+            message:status
+          };
+          chrome.notifications.create('notifregister',notifoptions);
         });
         return;
+      }
+
+      if(request.action == "forgot"){
+        userforgotpassphrase(request.alias,request.question1,request.question2,function(ack){
+          console.log(ack);
+          chrome.runtime.sendMessage({msg:"forgotaction", hint:ack});
+          let status = "";
+          if(ack.err){
+            status=ack.err
+          }else{
+            status=ack;
+          } 
+          chrome.runtime.sendMessage({msg:"forgotaction",hint:status});
+        });
+        let notifoptions={
+          type:'basic',
+          iconUrl:'images/get_started48.png',
+          title:'Forgot Message',
+          message:"status"
+        };
+        chrome.notifications.create('notifforgot',notifoptions);
       }
     }
     //if (message == "runContentScript"){
@@ -167,4 +214,3 @@ chrome.runtime.onMessage.addListener(
       //});
     //}
 });
-

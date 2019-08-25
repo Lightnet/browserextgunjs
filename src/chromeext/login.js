@@ -36,24 +36,17 @@ chrome.runtime.onMessage.addListener(
         bkg.console.log("incoming message");
         if(request.msg == "loginaction"){
             if(request.login == "pass"){
-                chrome.browserAction.setPopup({popup: 'popup.html'});//set popup
-                window.location.href="popup.html";//change popup url
-            }else{
-
+                chrome.browserAction.setPopup({popup: 'index.html'});//set popup
+                window.location.href="index.html";//change popup url
             }
         }
-        //if (request.msg === "something_completed") {
-            //  To do something
-            //console.log(request.data.subject)
-            //console.log(request.data.content)
-        //}
     }
 );
 
 btnforgot.onclick = function(element) {
     bkg.console.log('btnforgot...');
     //chrome.browserAction.setPopup({popup: 'popup.html'});//set popup
-    //window.location.href="popup.html";//change popup url
+    window.location.href="forgot.html";//change popup url
 };
 
 btnregister.onclick = function(element) {
@@ -61,9 +54,11 @@ btnregister.onclick = function(element) {
     let ialias = $('#ialias').val();
     let ipassphrase = $('#ipassphrase').val();
     console.log(ialias);
-    chrome.runtime.sendMessage({action:"register",alias: ialias,passphrase:ipassphrase}, function(response) {
-        console.log(response);
-    });
+    chrome.runtime.sendMessage({action:"register",alias: ialias,passphrase:ipassphrase});
+    
+    //chrome.runtime.sendMessage({action:"register",alias: ialias,passphrase:ipassphrase}, function(response) {
+        //console.log(response);
+    //});
 };
 
 // Called when the user clicks on the browser action.
